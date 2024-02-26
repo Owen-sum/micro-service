@@ -1,6 +1,7 @@
+import time
 def convertMeasurement(measurement, fromType, toType):
 
-    print("converting" + measurement + fromType + " to " + toType)
+    print("converting " + str(measurement) + fromType + " to " + toType)
 
     conversions = {
         "oz": {"ml": 29.5735,"cup": 1 / 8,"tsp": 6,"tbsp": 2,},
@@ -17,28 +18,32 @@ def convertMeasurement(measurement, fromType, toType):
         convertedValue = measurement * conversions[fromType][toType]
         return f"{convertedValue:.2f} {toType}"
     except ValueError:
-        return "Invalid input or error during conversion."
+        return "Invalid input."
 
 def main():
 
-    filePath = "measurementConverter.txt"
-    accessMode = "r+"
+    while True:
+        with open("measurementConverter.txt", "r+") as file:
+            line = file.readline().strip()
+            if not line:
+                print("Waiting, file is empty")
+                time.sleep(2.5)
+                
+                continue
+                
+            
+            try:
+                measurement, fromType, toType = line.split(",")
+                measurement = float(measurement)
+            except (ValueError, IndexError):
+                continue
 
-    with open(filePath, accessMode) as file:
-        line = file.readline().strip()
-
-        try:
-            measurement, fromType, toType = line.split(",")
-            measurement = float(measurement)
-        except (ValueError, IndexError):
-            print("File data incorrect format ")
-            return
-
-        convertedValue = convertMeasurement(measurement, fromType, toType)
-        file.seek(0)
-        file.write(f"{convertedValue}\n")
-
-        print(convertedValue)
+            convertedValue = convertMeasurement(measurement, fromType, toType)
+            file.seek(0)
+            file.write(f"{convertedValue}\n")
+            print(convertedValue)
+        file.close()
+        time.sleep(2.5)
 
 if __name__ == "__main__":
     main()
